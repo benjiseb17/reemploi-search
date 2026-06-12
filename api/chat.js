@@ -9,34 +9,46 @@ export default async function handler(req, res) {
   try {
     const { messages, system } = req.body;
 
-    // Nettoyer l'historique : garder uniquement role + content en string
-    const cleanMessages = messages.map(m => ({
-      role: m.role,
-      content: typeof m.content === "string"
+    // Convertir le format Anthropic → format Google
+    const contents = messages.map(m => ({
+      role: m.role === "assistant" ? "model" : "user",
+      parts: [{ text: typeof m.content === "string"
         ? m.content
         : (Array.isArray(m.content)
             ? m.content.filter(b => b.type === "text").map(b => b.text).join("\n")
             : String(m.content))
+      }]
     }));
 
-    const response = await fetch("https://api.anthropic.com/v1/messages", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        "x-api-key": process.env.ANTHROPIC_API_KEY,
-        "anthropic-version": "2023-06-01",
-      },
-      body: JSON.stringify({
-        model: "claude-sonnet-4-6",
-        max_tokens: 4000,
-        tools: [{ type: "web_search_20250305", name: "web_search" }],
-        system: system,
-        messages: cleanMessages,
-      }),
-    });
+    const response = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:generateContent?key=${process.env.GOOGLE_API_KEY}`,
+      {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system_instruction: { parts: [{ text: system }] },
+          contents: contents,
+          tools: [{ google_search: {} }],
+          generationConfig: {
+            maxOutputTokens: 4000,
+            temperature: 0.7,
+          }
+        }),
+      }
+    );
 
     const data = await response.json();
-    res.status(200).json(data);
+
+    // Extraire le texte de la réponse Google
+    const text = data.candidates?.[0]?.content?.parts
+      ?.filter(p => p.text)
+      ?.map(p => p.text)
+      ?.join("\n") || "Désolé, une erreur s'est produite.";
+
+    // Renvoyer dans le format attendu par le front
+    res.status(200).json({
+      content: [{ type: "text", text: text }]
+    });
 
   } catch (err) {
     res.status(500).json({ error: err.message });
