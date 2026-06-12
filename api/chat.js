@@ -3,12 +3,11 @@ const SHEET_CSV_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vQxb6WwT3
 async function fetchFournisseurs() {
   const res = await fetch(SHEET_CSV_URL);
   const csv = await res.text();
-  const lines = csv.split("\n").slice(1); // skip header
-
+  const lines = csv.split("\n").slice(1);
   return lines
     .filter(l => l.trim())
     .map(line => {
-      const cols = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/); // CSV split
+      const cols = line.split(/,(?=(?:[^"]*"[^"]*")*[^"]*$)/);
       const nom       = (cols[0] || "").replace(/"/g, "").trim();
       const ville     = (cols[7] || "").replace(/"/g, "").trim();
       const site      = (cols[8] || "").replace(/"/g, "").trim();
@@ -32,59 +31,61 @@ export default async function handler(req, res) {
   try {
     const { messages, system } = req.body;
 
-    // Charger les fournisseurs depuis le Google Sheet
     const fournisseurs = await fetchFournisseurs();
+    const systemWithData = system + `\n\nLISTE DES FOURNISSEURS :\n${fournisseurs}`;
 
-    // Injecter la liste dans le prompt
-    const systemWithData = system + `\n\nLISTE DES FOURNISSEURS (source : Google Sheet mis à jour en temps réel) :\n${fournisseurs}`;
+    // Format Google — historique simplifié
+    const contents = [];
 
-    // Convertir le format Anthropic → format Google
-    const contents = messages.map(m => ({
-      role: m.role === "assistant" ? "model" : "user",
-      parts: [{ text: typeof m.content === "string"
+    // Prompt système injecté en premier message
+    contents.push({ role: "user", parts: [{ text: systemWithData }] });
+    contents.push({ role: "model", parts: [{ text: "Compris, je suis prêt." }] });
+
+    // Historique conversation
+    for (const m of messages) {
+      const text = typeof m.content === "string"
         ? m.content
         : (Array.isArray(m.content)
             ? m.content.filter(b => b.type === "text").map(b => b.text).join("\n")
-            : String(m.content))
-      }]
-    }));
+            : String(m.content));
+      contents.push({
+        role: m.role === "assistant" ? "model" : "user",
+        parts: [{ text }]
+      });
+    }
 
-    const fullContents = [
-      { role: "user", parts: [{ text: systemWithData }] },
-      { role: "model", parts: [{ text: "Compris. Je suis prêt à rechercher des matériaux de réemploi BTP parmi ces fournisseurs." }] },
-      ...contents
-    ];
-
-    const response = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemma-4-26b-a4b-it:generateContent?key=${process.env.GOOGLE_API_KEY}`,
-      {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          contents: fullContents,
-          generationConfig: {
-            maxOutputTokens: 4000,
-            temperature: 0.7,
-          }
-        }),
+    const body = {
+      contents,
+      generationConfig: {
+        maxOutputTokens: 2048,
+        temperature: 0.7
       }
-    );
+    };
+
+    const url = `https://generativelanguage.googleapis.com/v1beta/models/gemma-4-26b-a4b-it:generateContent?key=${process.env.GOOGLE_API_KEY}`;
+
+    const response = await fetch(url, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(body),
+    });
 
     const data = await response.json();
 
+    // Afficher l'erreur exacte dans le chat si erreur
     if (data.error) {
       return res.status(200).json({
-        content: [{ type: "text", text: `Erreur API : ${data.error.message}` }]
+        content: [{ type: "text", text: `Erreur ${data.error.code} : ${data.error.message} (status: ${data.error.status})` }]
       });
     }
 
     const text = data.candidates?.[0]?.content?.parts
       ?.filter(p => p.text)
       ?.map(p => p.text)
-      ?.join("\n") || "Désolé, aucune réponse reçue.";
+      ?.join("\n") || "Aucune réponse reçue.";
 
     res.status(200).json({
-      content: [{ type: "text", text: text }]
+      content: [{ type: "text", text }]
     });
 
   } catch (err) {
