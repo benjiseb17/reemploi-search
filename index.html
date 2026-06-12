@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>ReSearch — Matériaux de réemploi BTP</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Syne:wght@400;600;700;800&family=Inter:wght@400;500&display=swap" rel="stylesheet" />
+  <style>
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+    :root {
+      --clay:    #C4541A;
+      --clay-lt: #E8784A;
+      --sand:    #F5F0E8;
+      --earth:   #2A1F14;
+      --stone:   #7A6E63;
+      --white:   #FFFFFF;
+      --border:  #DDD6CC;
+      --chat-bg: #F9F6F1;
+    }
+
+    html { scroll-behavior: smooth; }
+
+    body {
+      font-family: 'Inter', sans-serif;
+      background: var(--sand);
+      color: var(--earth);
+      min-height: 100vh;
+    }
+
+    /* ── SCREENS ── */
+    .screen { display: none; }
+    .screen.active { display: block; }
+
+    /* ══ LANDING ══════════════════════════════════════════════════════════ */
+
+    .landing { min-height: 100vh; }
+
+    /* Nav */
+    nav {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1.5rem 2.5rem;
+      border-bottom: 1px solid var(--border);
+    }
+    .logo {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: 1.25rem;
+      letter-spacing: -0.02em;
+      color: var(--earth);
+    }
+    .logo span { color: var(--clay); }
+    .nav-cta {
+      background: var(--clay);
+      color: var(--white);
+      border: none;
+      padding: .6rem 1.4rem;
+      border-radius: 6px;
+      font-family: 'Inter', sans-serif;
+      font-size: .9rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background .15s;
+    }
+    .nav-cta:hover { background: var(--clay-lt); }
+
+    /* Hero */
+    .hero {
+      max-width: 820px;
+      margin: 0 auto;
+      padding: 7rem 2rem 5rem;
+      text-align: center;
+    }
+    .hero-tag {
+      display: inline-block;
+      background: #E8D8CC;
+      color: var(--clay);
+      font-size: .78rem;
+      font-weight: 600;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding: .35rem .9rem;
+      border-radius: 20px;
+      margin-bottom: 2rem;
+    }
+    h1 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(2.4rem, 6vw, 4rem);
+      line-height: 1.1;
+      letter-spacing: -0.03em;
+      color: var(--earth);
+      margin-bottom: 1.5rem;
+    }
+    h1 em {
+      font-style: normal;
+      color: var(--clay);
+    }
+    .hero-sub {
+      font-size: 1.1rem;
+      color: var(--stone);
+      line-height: 1.7;
+      max-width: 560px;
+      margin: 0 auto 3rem;
+    }
+    .hero-btn {
+      display: inline-block;
+      background: var(--clay);
+      color: var(--white);
+      border: none;
+      padding: 1rem 2.5rem;
+      border-radius: 8px;
+      font-family: 'Syne', sans-serif;
+      font-size: 1.05rem;
+      font-weight: 700;
+      cursor: pointer;
+      transition: background .15s, transform .1s;
+      text-decoration: none;
+    }
+    .hero-btn:hover { background: var(--clay-lt); transform: translateY(-1px); }
+    .hero-price {
+      margin-top: 1rem;
+      font-size: .9rem;
+      color: var(--stone);
+    }
+    .hero-price strong { color: var(--earth); }
+
+    /* How it works */
+    .how {
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      border-bottom: 1px solid var(--border);
+      padding: 5rem 2rem;
+    }
+    .how-inner {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+    .section-label {
+      font-family: 'Syne', sans-serif;
+      font-size: .8rem;
+      font-weight: 700;
+      letter-spacing: .12em;
+      text-transform: uppercase;
+      color: var(--clay);
+      margin-bottom: 1rem;
+    }
+    .how h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.9rem;
+      margin-bottom: 3rem;
+      letter-spacing: -0.02em;
+    }
+    .steps {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 2rem;
+    }
+    .step-card {
+      padding: 1.5rem;
+      border: 1px solid var(--border);
+      border-radius: 10px;
+      background: var(--sand);
+    }
+    .step-num {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--clay);
+      color: var(--white);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: .95rem;
+      margin-bottom: 1rem;
+    }
+    .step-card h3 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 600;
+      font-size: 1rem;
+      margin-bottom: .5rem;
+    }
+    .step-card p { font-size: .9rem; color: var(--stone); line-height: 1.6; }
+
+    /* Sites list */
+    .sites-section {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 5rem 2rem;
+    }
+    .sites-section h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 700;
+      font-size: 1.9rem;
+      margin-bottom: .5rem;
+      letter-spacing: -0.02em;
+    }
+    .sites-section .sub { color: var(--stone); margin-bottom: 2rem; font-size: .95rem; }
+    .sites-grid {
+      display: flex;
+      flex-wrap: wrap;
+      gap: .6rem;
+    }
+    .site-tag {
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 20px;
+      padding: .4rem 1rem;
+      font-size: .85rem;
+      color: var(--earth);
+      font-weight: 500;
+    }
+
+    /* CTA bottom */
+    .cta-bottom {
+      background: var(--earth);
+      padding: 5rem 2rem;
+      text-align: center;
+    }
+    .cta-bottom h2 {
+      font-family: 'Syne', sans-serif;
+      font-weight: 800;
+      font-size: clamp(1.8rem, 4vw, 2.8rem);
+      color: var(--white);
+      margin-bottom: 1rem;
+      letter-spacing: -0.02em;
+    }
+    .cta-bottom p { color: #B0A89E; margin-bottom: 2rem; }
+    .cta-bottom .hero-btn { background: var(--clay); }
+    .cta-bottom .hero-btn:hover { background: var(--clay-lt); }
+
+    /* ══ CHAT ══════════════════════════════════════════════════════════════ */
+
+    .chat-screen {
+      display: none;
+      flex-direction: column;
+      height: 100vh;
+      background: var(--chat-bg);
+    }
+    .chat-screen.active { display: flex; }
+
+    .chat-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1rem 1.5rem;
+      background: var(--white);
+      border-bottom: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .chat-header .logo { font-size: 1rem; }
+    .chat-status {
+      display: flex;
+      align-items: center;
+      gap: .5rem;
+      font-size: .8rem;
+      color: var(--stone);
+    }
+    .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #4CAF50;
+    }
+
+    .chat-body {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .msg {
+      max-width: 78%;
+      padding: .9rem 1.1rem;
+      border-radius: 12px;
+      font-size: .95rem;
+      line-height: 1.6;
+    }
+    .msg.bot {
+      background: var(--white);
+      border: 1px solid var(--border);
+      align-self: flex-start;
+      border-bottom-left-radius: 4px;
+    }
+    .msg.user {
+      background: var(--clay);
+      color: var(--white);
+      align-self: flex-end;
+      border-bottom-right-radius: 4px;
+    }
+    .msg.bot strong { color: var(--clay); }
+
+    .typing {
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      padding: .9rem 1.1rem;
+      background: var(--white);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      border-bottom-left-radius: 4px;
+      align-self: flex-start;
+    }
+    .typing span {
+      width: 7px;
+      height: 7px;
+      border-radius: 50%;
+      background: var(--stone);
+      animation: bounce .8s infinite;
+    }
+    .typing span:nth-child(2) { animation-delay: .15s; }
+    .typing span:nth-child(3) { animation-delay: .3s; }
+    @keyframes bounce {
+      0%, 80%, 100% { transform: translateY(0); }
+      40% { transform: translateY(-6px); }
+    }
+
+    .chat-footer {
+      padding: 1rem 1.5rem;
+      background: var(--white);
+      border-top: 1px solid var(--border);
+      flex-shrink: 0;
+    }
+    .chat-input-row {
+      display: flex;
+      gap: .75rem;
+      align-items: flex-end;
+    }
+    .chat-input-row textarea {
+      flex: 1;
+      border: 1.5px solid var(--border);
+      border-radius: 8px;
+      padding: .75rem 1rem;
+      font-family: 'Inter', sans-serif;
+      font-size: .95rem;
+      resize: none;
+      outline: none;
+      background: var(--sand);
+      color: var(--earth);
+      line-height: 1.5;
+      max-height: 140px;
+    }
+    .chat-input-row textarea:focus { border-color: var(--clay); }
+    .send-btn {
+      background: var(--clay);
+      border: none;
+      color: var(--white);
+      width: 44px;
+      height: 44px;
+      border-radius: 8px;
+      cursor: pointer;
+      font-size: 1.1rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      transition: background .15s;
+    }
+    .send-btn:hover { background: var(--clay-lt); }
+    .send-btn:disabled { background: var(--border); cursor: not-allowed; }
+    .chat-hint {
+      font-size: .78rem;
+      color: var(--stone);
+      margin-top: .5rem;
+      text-align: center;
+    }
+
+    /* ══ LOADER ════════════════════════════════════════════════════════════ */
+    .loader-screen {
+      display: none;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      flex-direction: column;
+      gap: 1.5rem;
+    }
+    .loader-screen.active { display: flex; }
+    .spinner {
+      width: 40px;
+      height: 40px;
+      border: 3px solid var(--border);
+      border-top-color: var(--clay);
+      border-radius: 50%;
+      animation: spin 1s linear infinite;
+    }
+    @keyframes spin { to { transform: rotate(360deg); } }
+    .loader-screen p { color: var(--stone); font-size: .95rem; }
+
+    /* Responsive */
+    @media (max-width: 600px) {
+      nav { padding: 1rem 1.25rem; }
+      .hero { padding: 4rem 1.25rem 3rem; }
+      .msg { max-width: 90%; }
+    }
+  </style>
+</head>
+<body>
+
+<!-- ══ LANDING ══════════════════════════════════════════════════ -->
+<div id="landing" class="screen landing active">
+  <nav>
+    <div class="logo">Re<span>Search</span></div>
+    <button class="nav-cta" onclick="goToPayment()">Commencer — 5 €/mois</button>
+  </nav>
+
+  <section class="hero">
+    <span class="hero-tag">Réemploi BTP · IA spécialisée</span>
+    <h1>Trouvez vos matériaux<br><em>de réemploi</em> en secondes</h1>
+    <p class="hero-sub">
+      Une IA entraînée sur les 30+ plateformes françaises de réemploi BTP.
+      Décrivez ce dont vous avez besoin, elle cherche et vous répond.
+    </p>
+    <button class="hero-btn" onclick="goToPayment()">Accéder pour 5 €/mois</button>
+    <p class="hero-price"><strong>5 € HT / mois</strong> · Sans engagement · Résiliable à tout moment</p>
+  </section>
+
+  <section class="how">
+    <div class="how-inner">
+      <p class="section-label">Comment ça marche</p>
+      <h2>Chercher, trouver, construire.</h2>
+      <div class="steps">
+        <div class="step-card">
+          <div class="step-num">1</div>
+          <h3>Décrivez votre besoin</h3>
+          <p>Tapez le matériau que vous cherchez : type, quantité, localisation, état souhaité.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">2</div>
+          <h3>L'IA cherche pour vous</h3>
+          <p>Elle interroge en temps réel 30+ plateformes de réemploi BTP françaises.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">3</div>
+          <h3>Recevez des pistes concrètes</h3>
+          <p>Noms des fournisseurs, sites web, types de matériaux disponibles, conditions.</p>
+        </div>
+        <div class="step-card">
+          <div class="step-num">4</div>
+          <h3>Affinez et reposez</h3>
+          <p>Posez d'autres questions, filtrez par région, par type — c'est une conversation.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section class="sites-section">
+    <p class="section-label">Sources couvertes</p>
+    <h2>30+ plateformes indexées</h2>
+    <p class="sub">L'IA connaît le catalogue, les conditions, et la localisation de chaque acteur.</p>
+    <div class="sites-grid" id="sites-list"></div>
+  </section>
+
+  <section class="cta-bottom">
+    <h2>Prêt à trouver vos matériaux ?</h2>
+    <p>Accès illimité · Résiliable à tout moment</p>
+    <button class="hero-btn" onclick="goToPayment()">Démarrer pour 5 €/mois</button>
+  </section>
+</div>
+
+<!-- ══ LOADER ════════════════════════════════════════════════════ -->
+<div id="loader" class="screen loader-screen">
+  <div class="spinner"></div>
+  <p>Redirection vers le paiement sécurisé…</p>
+</div>
+
+<!-- ══ CHAT ══════════════════════════════════════════════════════ -->
+<div id="chat" class="screen chat-screen">
+  <div class="chat-header">
+    <div class="logo">Re<span>Search</span></div>
+    <div class="chat-status">
+      <span class="dot"></span>
+      30+ plateformes actives
+    </div>
+  </div>
+
+  <div class="chat-body" id="chat-body">
+    <div class="msg bot">
+      👋 Bonjour ! Je suis votre assistant spécialisé en <strong>matériaux de réemploi BTP</strong>.<br><br>
+      Décrivez ce dont vous avez besoin (type de matériau, quantité estimée, région de préférence) et je recherche parmi les 30+ plateformes que je connais.
+    </div>
+  </div>
+
+  <div class="chat-footer">
+    <div class="chat-input-row">
+      <textarea
+        id="user-input"
+        rows="1"
+        placeholder="Ex : je cherche des portes intérieures en bois en Île-de-France…"
+        onkeydown="handleKey(event)"
+        oninput="autoResize(this)"
+      ></textarea>
+      <button class="send-btn" id="send-btn" onclick="sendMessage()">➤</button>
+    </div>
+    <p class="chat-hint">Entrée pour envoyer · Maj+Entrée pour saut de ligne</p>
+  </div>
+</div>
+
+<script>
+  /* ── Sites list ── */
+  const SITES = [
+    { name: "Articonnex", url: "https://articonnex.com/" },
+    { name: "Baticycle", url: "https://baticycle.fr/" },
+    { name: "Bobi Réemploi", url: "https://www.bobi-reemploi.fr/" },
+    { name: "Cerestia", url: "https://www.cerestia.fr/" },
+    { name: "Cycle Up", url: "https://www.cycle-up.fr/home" },
+    { name: "Cyneo (Bouygues)", url: "https://www.skop.app/cyneo" },
+    { name: "Dome Réemploi", url: "https://www.domereemploi.com/" },
+    { name: "Flexof", url: "https://www.flexof.fr/" },
+    { name: "Les Compagnons Bâtisseurs", url: "https://centre.soli-bat.fr/" },
+    { name: "LIFE Waste2Build", url: "https://plateforme-lifewaste2build.com/" },
+    { name: "Made in Past", url: "https://www.madeinpast.fr/" },
+    { name: "Mat'low", url: "https://www.matlow.bzh/" },
+    { name: "Matériauthèque Nancy", url: "https://reemployez.fr/" },
+    { name: "Métabatik", url: "https://metabatik.fr/" },
+    { name: "Minéka", url: "https://mineka.fr/" },
+    { name: "Opal Réemploi", url: "https://www.opalreemploi.fr/" },
+    { name: "Patxa'ma", url: "https://www.patxama.com/fr/" },
+    { name: "Planète Réemploi", url: "https://www.planete-reemploi.fr/" },
+    { name: "PREMYS", url: "https://www.premys.fr/" },
+    { name: "R+éveil", url: "https://r-plus-eveil.com/" },
+    { name: "Réavie", url: "https://asso-reavie.fr/" },
+    { name: "Recyclo'Bat", url: "https://recyclobat.fr/" },
+    { name: "Reemply", url: "https://www.reemply.fr/" },
+    { name: "Reempro", url: "https://www.reempro.com/" },
+    { name: "Refair", url: "https://refair-bm.fr/" },
+    { name: "Second Œuvre", url: "https://www.secondeoeuvre.fr/" },
+    { name: "Noah Réemploi (Upcyclea)", url: "https://www.noah-reemploi.com/" },
+    { name: "B2R", url: "" },
+  ];
+
+  const sitesList = document.getElementById("sites-list");
+  SITES.forEach(s => {
+    const tag = document.createElement("span");
+    tag.className = "site-tag";
+    tag.textContent = s.name;
+    sitesList.appendChild(tag);
+  });
+
+  /* ── Stripe ── */
+  // 🔧 CONFIGUREZ ICI votre lien Stripe Payment Link
+  const STRIPE_PAYMENT_LINK = "https://buy.stripe.com/VOTRE_LIEN_ICI";
+
+  function goToPayment() {
+    document.getElementById("landing").classList.remove("active");
+    document.getElementById("loader").classList.add("active");
+    setTimeout(() => {
+      window.location.href = STRIPE_PAYMENT_LINK;
+    }, 800);
+  }
+
+  /* ── Access check (via URL param après retour Stripe) ── */
+  window.addEventListener("DOMContentLoaded", () => {
+    const params = new URLSearchParams(window.location.search);
+    if (params.get("access") === "granted") {
+      showChat();
+    }
+  });
+
+  function showChat() {
+    document.getElementById("landing").classList.remove("active");
+    document.getElementById("loader").classList.remove("active");
+    document.getElementById("chat").classList.add("active");
+  }
+
+  /* ── System prompt ── */
+  const SYSTEM_PROMPT = `Tu es un assistant spécialisé en approvisionnement de matériaux de réemploi BTP.
+Tu t'adresses exclusivement à des professionnels : architectes, maîtres d'œuvre, conducteurs de travaux.
+Ton ton est direct, professionnel, sans remplissage. Tu vas à l'essentiel.
+Tu n'inventes jamais une offre. Si tu ne trouves rien, tu le dis clairement.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ÉTAPE 1 — QUALIFICATION DU BESOIN
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Avant toute recherche, collecte ces informations en une seule fois :
+1. Matériau exact + contraintes techniques (dimensions, normes, finition)
+2. Quantité estimée (m², unités, tonnes)
+3. Région ou département
+4. Délai (urgent < 2 semaines / normal / flexible)
+5. État accepté (neuf déposé / bon état / peu importe)
+
+Si certaines infos sont déjà données, ne repose pas les questions déjà répondues.
+Dès que tu as les 5 infos, lance la recherche sans demander de confirmation.
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ÉTAPE 2 — RECHERCHE WEB CIBLÉE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Lance une recherche web sur ces sites dans cet ordre de priorité.
+
+PRIORITÉ 1 — Marketplaces avec annonces individuelles :
+noah-reemploi.com, cycle-up.fr, reempro.com, baticycle.fr,
+madeinpast.fr, mineka.fr, reemply.fr, refair-bm.fr,
+backacia.com, skop.eco, opalis.eu, cycleup.io
+
+PRIORITÉ 2 — Sites fournisseurs (catalogue variable) :
+bobi-reemploi.fr, metabatik.fr, cerestia.fr, recyclobat.fr,
+opalreemploi.fr, r-plus-eveil.com, articonnex.com, flexof.fr,
+matlow.bzh, premys.fr, asso-reavie.fr, secondeoeuvre.fr,
+domereemploi.com, planete-reemploi.fr, patxama.com,
+plateforme-lifewaste2build.com, reemployez.fr
+
+Règle absolue : ne jamais donner un lien générique (page d'accueil, page catégorie).
+Chaque lien doit pointer directement vers l'annonce ou la fiche produit précise.
+Zéro lien flou. Si tu ne trouves pas de lien direct, ne mentionne pas cette source.
+
+Critères de filtrage pour chaque annonce trouvée :
+- Quantité suffisante (au moins 50% du besoin)
+- Annonce récente (moins de 6 mois)
+- Localisation cohérente avec la région demandée
+- Réemploi confirmé (matériau déjà posé puis déposé, pas du neuf invendu)
+- Prix cohérent avec le marché réemploi
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ÉTAPE 3 — FORMAT DE RÉPONSE
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Présente les résultats dans ce format strict :
+
+OFFRES TROUVÉES — [matériau] — [région]
+
+Pour chaque offre :
+[Score] [Nom fournisseur] — [Ville]
+→ [Description précise : matériau, dimensions, quantité, état, prix si disponible]
+→ [Lien direct vers l'annonce]
+→ Justification du score en une ligne si score < 5/5
+
+Grille de score obligatoire :
+🟢 5/5 — Correspondance exacte (matériau, dimensions, quantité, zone)
+🟡 4/5 — Très proche (un critère secondaire diffère légèrement)
+🟠 3/5 — Compatible avec réserve (teinte différente, zone éloignée)
+🔴 2/5 — Écart significatif (critère technique majeur différent)
+⛔ 1/5 — Non pertinent → ne pas restituer
+
+Ne restituer que les offres avec score ≥ 2/5.
+
+Si zéro offre trouvée sur les plateformes :
+→ Indiquer clairement "Aucune annonce disponible en ligne actuellement"
+→ Lister les 3-5 fournisseurs référencés les plus proches géographiquement
+  à contacter directement, avec leur site web
+
+Toujours terminer par :
+💰 Fourchette de prix réemploi vs neuf + économie potentielle estimée
+⚠️ Points de vigilance spécifiques au matériau
+
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+ÉTAPE 4 — PROPOSITION DE RAPPORT
+━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+Après avoir présenté tous les résultats, pose cette question :
+"Voulez-vous recevoir un récap de cette recherche par email ?"
+
+Si oui → réponds uniquement par le mot-clé : RAPPORT_A_ENVOYER
+Si non → demande s'il a un autre besoin à sourcer.`;
+
+  /* ── Chat logic ── */
+  let messages = [];
+  let isLoading = false;
+
+  function autoResize(el) {
+    el.style.height = "auto";
+    el.style.height = Math.min(el.scrollHeight, 140) + "px";
+  }
+
+  function handleKey(e) {
+    if (e.key === "Enter" && !e.shiftKey) {
+      e.preventDefault();
+      sendMessage();
+    }
+  }
+
+  async function sendMessage() {
+    const input = document.getElementById("user-input");
+    const text = input.value.trim();
+    if (!text || isLoading) return;
+
+    input.value = "";
+    input.style.height = "auto";
+    isLoading = true;
+    document.getElementById("send-btn").disabled = true;
+
+    appendMsg("user", text);
+    messages.push({ role: "user", content: text });
+
+    const typing = appendTyping();
+
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          system: SYSTEM_PROMPT,
+          messages: messages,
+        }),
+      });
+
+      const data = await res.json();
+      typing.remove();
+
+      // Avec web search, l'API renvoie plusieurs blocs — on extrait uniquement le texte
+      const reply = (data.content || [])
+        .filter(block => block.type === "text")
+        .map(block => block.text)
+        .join("\n") || "Désolé, une erreur s'est produite.";
+
+      // Intercepter le mot-clé rapport
+      if (reply.trim() === "RAPPORT_A_ENVOYER") {
+        appendMsg("bot", "📧 Rapport en cours d'envoi… (fonctionnalité à venir)");
+      } else {
+        appendMsg("bot", reply);
+      }
+
+      // Stocker le contenu complet pour l'historique (requis par l'API avec tools)
+      messages.push({ role: "assistant", content: data.content || reply });
+
+    } catch (err) {
+      typing.remove();
+      appendMsg("bot", "Une erreur réseau s'est produite. Vérifiez votre connexion et réessayez.");
+    }
+
+    isLoading = false;
+    document.getElementById("send-btn").disabled = false;
+    document.getElementById("user-input").focus();
+  }
+
+  function appendMsg(role, text) {
+    const body = document.getElementById("chat-body");
+    const div = document.createElement("div");
+    div.className = `msg ${role}`;
+    div.innerHTML = text.replace(/\n/g, "<br>").replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>").replace(/\*(.*?)\*/g, "<em>$1</em>");
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+    return div;
+  }
+
+  function appendTyping() {
+    const body = document.getElementById("chat-body");
+    const div = document.createElement("div");
+    div.className = "typing";
+    div.innerHTML = "<span></span><span></span><span></span>";
+    body.appendChild(div);
+    body.scrollTop = body.scrollHeight;
+    return div;
+  }
+</script>
+
+</body>
+</html>
