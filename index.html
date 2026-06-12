@@ -559,10 +559,8 @@
 
   /* ── Access check (via URL param après retour Stripe) ── */
   window.addEventListener("DOMContentLoaded", () => {
-    const params = new URLSearchParams(window.location.search);
-    if (params.get("access") === "granted") {
-      showChat();
-    }
+    // Mode test — chat ouvert directement sans paiement
+    showChat();
   });
 
   function showChat() {
