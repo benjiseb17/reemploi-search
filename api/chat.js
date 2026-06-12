@@ -20,15 +20,21 @@ export default async function handler(req, res) {
       }]
     }));
 
+    // Gemma 4 ne supporte pas google_search ni system_instruction
+    // On injecte le prompt système comme premier message user
+    const fullContents = [
+      { role: "user", parts: [{ text: system }] },
+      { role: "model", parts: [{ text: "Compris. Je suis prêt à rechercher des matériaux de réemploi BTP." }] },
+      ...contents
+    ];
+
     const response = await fetch(
       `https://generativelanguage.googleapis.com/v1beta/models/gemma-3-27b-it:generateContent?key=${process.env.GOOGLE_API_KEY}`,
       {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          system_instruction: { parts: [{ text: system }] },
-          contents: contents,
-          tools: [{ google_search: {} }],
+          contents: fullContents,
           generationConfig: {
             maxOutputTokens: 4000,
             temperature: 0.7,
@@ -39,13 +45,17 @@ export default async function handler(req, res) {
 
     const data = await response.json();
 
-    // Extraire le texte de la réponse Google
+    if (data.error) {
+      return res.status(200).json({
+        content: [{ type: "text", text: `Erreur Google API : ${data.error.message}` }]
+      });
+    }
+
     const text = data.candidates?.[0]?.content?.parts
       ?.filter(p => p.text)
       ?.map(p => p.text)
-      ?.join("\n") || "Désolé, une erreur s'est produite.";
+      ?.join("\n") || "Désolé, aucune réponse reçue.";
 
-    // Renvoyer dans le format attendu par le front
     res.status(200).json({
       content: [{ type: "text", text: text }]
     });
